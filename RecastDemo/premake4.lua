@@ -111,13 +111,29 @@ project "RecastDemo"
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
-		"../Recast/Include"
+		"../Recast/Include",
+		"Contrib/fastlz",
+		"Contrib/metis/include",
+		"Contrib/metis/source/include",
+		"Contrib/metis/lib",
+		"Contrib/SDL/include",
+		"Contrib/SDL/lib/x86",
+		"../HierarchicalPathfinding/Include",
+		"../HierarchicalPathfinding/Source",
 	}
 	files	{ 
 		"../RecastDemo/Include/*.h",
 		"../RecastDemo/Source/*.cpp",
 		"../RecastDemo/Contrib/fastlz/*.h",
-		"../RecastDemo/Contrib/fastlz/*.c"
+		"../RecastDemo/Contrib/fastlz/*.c",
+		"Contrib/metis/include/*.c",
+		"Contrib/metis/include/*.h",
+		"Contrib/metis/lib/*.lib",
+		"Contrib/SDL/include/*.cpp",
+		"Contrib/SDL/include/*.h",
+		--"Contrib/SDL/lib/x86/*.lib",
+		"../HierarchicalPathfinding/Include/*.h",
+		"../HierarchicalPathfinding/Source/*.cpp",
 	}
 
 	-- project dependencies

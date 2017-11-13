@@ -21,7 +21,7 @@
 
 #include "Recast.h"
 #include "SampleInterfaces.h"
-#include "Navigation.h"
+#include "../../HierarchicalPathfinding/Include/Navigation.h"
 
 /// Tool types.
 enum SampleToolType

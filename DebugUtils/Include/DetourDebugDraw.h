@@ -22,7 +22,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "DetourTileCacheBuilder.h"
-#include "Graph.h"
+#include "../../HierarchicalPathfinding/Include/Graph.h"
 
 enum DrawNavMeshFlags
 {
