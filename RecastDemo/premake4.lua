@@ -170,7 +170,7 @@ project "RecastDemo"
 			"glu32",
 			"sdl2main",
 			"sdl2"
-			"libmetis"
+			"graphlab_metis"
 		}
 
 	-- mac includes and libs
