@@ -20,8 +20,8 @@
 
 
 #define D_PATTERN               "((^%|[^%]%)[0-\\s\\+]*[0-9]*)D"
-#define D_SCAN_REPLACEMENT      "$1" SCNIDX
-#define D_PRINT_REPLACEMENT     "$1" PRIIDX
+#define D_SCAN_REPLACEMENT      "$1" //SCNIDX
+#define D_PRINT_REPLACEMENT     "$1" //PRIIDX
 
 
 

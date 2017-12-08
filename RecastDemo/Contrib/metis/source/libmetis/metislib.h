@@ -45,6 +45,6 @@
 
 
 #if defined(COMPILER_GCC)
-extern char* strdup (const char *);
+//extern char* strdup (const char *);
 #endif
 

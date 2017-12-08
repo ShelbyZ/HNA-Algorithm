@@ -33,6 +33,9 @@
 #include "DetourDebugDraw.h"
 #include "DetourCommon.h"
 
+#include <gl/GL.h>
+#include <gl/GLU.h>
+
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif

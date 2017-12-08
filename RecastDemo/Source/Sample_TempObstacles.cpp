@@ -44,6 +44,9 @@
 #include "RecastAssert.h"
 #include "fastlz.h"
 
+#include <gl/GL.h>
+#include <gl/GLU.h>
+
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
