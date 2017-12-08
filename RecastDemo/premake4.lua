@@ -168,8 +168,9 @@ project "RecastDemo"
 		links { 
 			"opengl32",
 			"glu32",
-			"sdlmain",
-			"sdl"
+			"sdl2main",
+			"sdl2"
+			"libmetis"
 		}
 
 	-- mac includes and libs

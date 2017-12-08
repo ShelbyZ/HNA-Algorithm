@@ -21,6 +21,7 @@
 #include <math.h>
 #include "SDL.h"
 #include "SDL_opengl.h"
+#include "SDL_video.h"
 #include "imgui.h"
 #include "imguiRenderGL.h"
 #include "Recast.h"
@@ -34,6 +35,9 @@
 #include "Sample_TileMesh.h"
 #include "Sample_TempObstacles.h"
 #include "Sample_Debug.h"
+
+#include <gl/GL.h>
+#include <gl/GLU.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -85,14 +89,15 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 //#endif
-
-	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
-
+   SDL_Window* window = nullptr;
+   SDL_Renderer* renderer = nullptr;
+   SDL_CreateWindowAndRenderer(1280, 720, SDL_WINDOW_OPENGL, &window, &renderer);
+   auto context = SDL_GL_CreateContext(window);
 	bool presentationMode = false;
 
 	int width, height;
 	SDL_Surface* screen = 0;
-	
+	/*
 	if (presentationMode)
 	{
 		width = vi->current_w;
@@ -105,7 +110,7 @@ int main(int /*argc*/, char** /*argv*/)
 		height = vi->current_h - 80;
 		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	}
-	
+	//*/
 	if (!screen)
 	{
 		printf("Could not initialise SDL opengl\n");
@@ -114,7 +119,8 @@ int main(int /*argc*/, char** /*argv*/)
 
 	glEnable(GL_MULTISAMPLE);
 
-	SDL_WM_SetCaption("Recast Demo", 0);
+   SDL_SetWindowTitle(window, "Recast Demo");
+	//SDL_WM_SetCaption("Recast Demo", 0);
 	
 	if (!imguiRenderGLInit("DroidSans.ttf"))
 	{
@@ -296,14 +302,14 @@ int main(int /*argc*/, char** /*argv*/)
 							origry = ry;
 						}
 					}	
-					else if (event.button.button == SDL_BUTTON_WHEELUP)
+					else if (event.button.button == SDL_MOUSEBUTTONUP)
 					{
 						if (mouseOverMenu)
 							mscroll--;
 						else
 							scrollZoom -= 1.0f;
 					}
-					else if (event.button.button == SDL_BUTTON_WHEELDOWN)
+					else if (event.button.button == SDL_MOUSEBUTTONDOWN)
 					{
 						if (mouseOverMenu)
 							mscroll++;
@@ -468,7 +474,7 @@ int main(int /*argc*/, char** /*argv*/)
 		raye[0] = (float)x; raye[1] = (float)y; raye[2] = (float)z;
 		
 		// Handle keyboard movement.
-		Uint8* keystate = SDL_GetKeyState(NULL);
+      const Uint8* keystate = SDL_GetKeyboardState(nullptr);
 		moveW = rcClamp(moveW + dt * 4 * (keystate[SDLK_w] ? 1 : -1), 0.0f, 1.0f);
 		moveS = rcClamp(moveS + dt * 4 * (keystate[SDLK_s] ? 1 : -1), 0.0f, 1.0f);
 		moveA = rcClamp(moveA + dt * 4 * (keystate[SDLK_a] ? 1 : -1), 0.0f, 1.0f);
@@ -947,7 +953,7 @@ int main(int /*argc*/, char** /*argv*/)
 		imguiRenderGLDraw();		
 		
 		glEnable(GL_DEPTH_TEST);
-		SDL_GL_SwapBuffers();
+      SDL_GL_SwapWindow(window);
 	}
 	
 	imguiRenderGLDestroy();
