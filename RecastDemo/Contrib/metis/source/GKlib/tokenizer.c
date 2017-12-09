@@ -1,16 +1,16 @@
-/*
- * tokenizer.c
- *
- * This file contains various routines for splitting an input string into
- * tokens and returning them in form of a list. The goal is to mimic
- * perl's split function
- *
- * Started 11/23/04
- * George
- *
- * $Id: tokenizer.c 1414 2007-04-05 02:52:46Z karypis $
- *
- */
+/*!
+\file  tokenizer.c
+\brief String tokenization routines
+
+This file contains various routines for splitting an input string into
+tokens and returning them in form of a list. The goal is to mimic perl's 
+split function.
+
+\date   Started 11/23/04
+\author George
+\version\verbatim $Id: tokenizer.c 10711 2011-08-31 22:23:04Z karypis $ \endverbatim
+*/
+
 
 #include <GKlib.h>
 

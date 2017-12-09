@@ -1,13 +1,12 @@
-/*
- * Copyright 1997, Regents of the University of Minnesota
- *
- * time.c
- *
- * This file contains various functions that do with time
- *
- * $Id: timers.c 934 2007-02-21 18:31:42Z karypis $
- *
- */
+/*!
+\file  timers.c
+\brief Various timing functions 
+
+\date   Started 4/12/2007
+\author George
+\version\verbatim $Id: timers.c 10711 2011-08-31 22:23:04Z karypis $ \endverbatim
+*/
+
 
 #include <GKlib.h>
 
@@ -17,9 +16,17 @@
 /*************************************************************************
 * This function returns the CPU seconds
 **************************************************************************/
-gk_wclock_t gk_WClockSeconds(void)
+double gk_WClockSeconds(void)
 {
-  return time(NULL);
+#ifdef __GNUC__
+  struct timeval ctime;
+
+  gettimeofday(&ctime, NULL);
+
+  return (double)ctime.tv_sec + (double).000001*ctime.tv_usec;
+#else
+  return (double)time(NULL);
+#endif
 }
 
 
@@ -28,10 +35,11 @@ gk_wclock_t gk_WClockSeconds(void)
 **************************************************************************/
 double gk_CPUSeconds(void)
 {
-#ifdef __OPENMP__
+//#ifdef __OPENMP__
+#ifdef __OPENMPXXXX__
   return omp_get_wtime();
 #else
-  #ifdef WIN32
+  #if defined(WIN32) || defined(__MINGW32__)
     return((double) clock()/CLOCKS_PER_SEC);
   #else
     struct rusage r;

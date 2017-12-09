@@ -4,7 +4,7 @@
 
 \date   Started 3/27/2007
 \author George
-\version\verbatim $Id: gk_arch.h 1430 2007-04-07 17:53:07Z karypis $ \endverbatim
+\version\verbatim $Id: gk_arch.h 10711 2011-08-31 22:23:04Z karypis $ \endverbatim
 */
 
 #ifndef _GK_ARCH_H_
@@ -21,16 +21,24 @@
 #define _XOPEN_SOURCE 600
 #endif
 #if !defined(__USE_XOPEN2K)
-#define __USE_XOPEN2K 
+#define __USE_XOPEN2K
 #endif
+#endif
+
+
+#ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
 
 
 #ifdef __MSC__ 
-  #include <crtdefs.h>
+  #include "ms_stdint.h"
+  #include "ms_inttypes.h"
+  #include "ms_stat.h"
 #else
+#ifndef SUNOS
   #include <stdint.h>
+#endif
   #include <inttypes.h>
   #include <sys/types.h>
   #include <sys/resource.h>
@@ -38,40 +46,26 @@
 #endif
 
 
-
 /*************************************************************************
 * Architecture-specific modifications
 **************************************************************************/
 #ifdef WIN32
-#define __thread __declspec( thread )
-
-typedef __int32                 int32_t;
-typedef __int64                 int64_t;
-typedef unsigned __int32        uint32_t;
-typedef unsigned __int64        uint64_t;
+typedef ptrdiff_t ssize_t;
 #endif
 
 
 #ifdef SUNOS
-#define __thread 
+#define PTRDIFF_MAX  INT64_MAX
 #endif
-
-
-#ifdef DARWIN
-#define __thread 
-#endif
-
 
 #ifdef __MSC__
-//#define rint(x) ((int)((x)+0.5))  /* MSC does not have rint() function */
-#endif
+/* MSC does not have rint() function */
+//#define rint(x) ((int)((x)+0.5))  
 
-
-#ifdef __GNUC__
-#if !defined(strdup)
-extern char* strdup (const char *);
+/* MSC does not have INFINITY defined */
+#ifndef INFINITY
+#define INFINITY FLT_MAX
 #endif
 #endif
-
 
 #endif

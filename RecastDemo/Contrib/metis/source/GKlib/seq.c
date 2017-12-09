@@ -8,7 +8,7 @@
  */
 
 
-#include<GKlib.h>
+#include <GKlib.h>
 
 
 
@@ -50,7 +50,7 @@ gk_i2cc2i_t *gk_i2cc2i_create_common(char *alphabet)
     
     
     int nsymbols;
-    gk_loop_t i;
+    gk_idx_t i;
     gk_i2cc2i_t *t;
 
     nsymbols = strlen(alphabet);
@@ -82,23 +82,23 @@ gk_i2cc2i_t *gk_i2cc2i_create_common(char *alphabet)
 /********************************************************************/
 gk_seq_t *gk_seq_ReadGKMODPSSM(char *filename)
 {
-    
     gk_seq_t *seq;
-    gk_loop_t i, j, ii;
-    int ntokens,nbytes,len;
+    gk_idx_t i, j, ii;
+    size_t ntokens, nbytes, len;
     FILE *fpin;
     
     
     gk_Tokens_t tokens;
     static char *AAORDER = "ARNDCQEGHILKMFPSTWYVBZX*";
     static int PSSMWIDTH = 20;
-    char header[20], line[MAXLINELEN];
+    char *header, line[MAXLINELEN];
     gk_i2cc2i_t *converter;
 
+    header = gk_cmalloc(PSSMWIDTH, "gk_seq_ReadGKMODPSSM: header");
     
     converter = gk_i2cc2i_create_common(AAORDER);
     
-    gk_getfilestats(filename, &len, &ntokens, &nbytes);
+    gk_getfilestats(filename, &len, &ntokens, NULL, &nbytes);
     len --;
 
     seq = gk_malloc(sizeof(gk_seq_t),"gk_seq_ReadGKMODPSSM");
@@ -116,7 +116,8 @@ gk_seq_t *gk_seq_ReadGKMODPSSM(char *filename)
 
 
     /* Read the header line */
-    fgets(line, MAXLINELEN-1, fpin);
+    if (fgets(line, MAXLINELEN-1, fpin) == NULL)
+      errexit("Unexpected end of file: %s\n", filename);
     gk_strtoupper(line);
     gk_strtokenize(line, " \t\n", &tokens);
 
@@ -128,7 +129,8 @@ gk_seq_t *gk_seq_ReadGKMODPSSM(char *filename)
 
     /* Read the rest of the lines */
     for (i=0, ii=0; ii<len; ii++) {
-	fgets(line, MAXLINELEN-1, fpin);
+	if (fgets(line, MAXLINELEN-1, fpin) == NULL)
+          errexit("Unexpected end of file: %s\n", filename);
 	gk_strtoupper(line);
 	gk_strtokenize(line, " \t\n", &tokens);
 	
@@ -147,6 +149,7 @@ gk_seq_t *gk_seq_ReadGKMODPSSM(char *filename)
     
     seq->len = i; /* Reset the length if certain characters were skipped */
     
+    gk_free((void **)&header, LTERM);
     gk_fclose(fpin);
 
     return seq;

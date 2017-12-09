@@ -1,13 +1,12 @@
-/*
- * Copyright 1997, Regents of the University of Minnesota
- *
- * util.c
- *
- * This file contains utility functions
- *
- * $Id: util.c 1421 2007-04-06 14:37:41Z karypis $
- *
- */
+/*!
+\file  util.c
+\brief Various utility routines
+
+\date   Started 4/12/2007
+\author George
+\version\verbatim $Id: util.c 10711 2011-08-31 22:23:04Z karypis $ \endverbatim
+*/
+
 
 #include <GKlib.h>
 
@@ -31,21 +30,35 @@ void gk_RandomPermute(size_t n, int *p, int flag)
   for (i=0; i<n/2; i++) {
     v = RandomInRange(n);
     u = RandomInRange(n);
-    SWAP(p[v], p[u], tmp);
+    gk_SWAP(p[v], p[u], tmp);
   }
 }
 
 
-/*************************************************************************
-* This function converts an element-based set membership to a set-based
-* element membership.
-* That is, it takes an array such as part[] that stores where each element
-* belongs to, and returns a pair of arrays (pptr[], pind[]) that store in
-* CSF format the list of elements belonging in each partition.
-* Parameters:
-*    n      - the number of elements in the array (e.g., # of vertices)
-*    range  - the cardinality of the set (e.g., # of partitions)
-**************************************************************************/
+/************************************************************************/
+/*!
+\brief Converts an element-based set membership into a CSR-format set-based
+       membership.
+
+For example, it takes an array such as part[] that stores where each 
+element belongs to and returns a pair of arrays (pptr[], pind[]) that 
+store in CSF format the list of elements belonging in each partition.
+
+\param n      
+  the number of elements in the array (e.g., # of vertices)
+\param range  
+  the cardinality of the set (e.g., # of partitions)
+\param array
+  the array that stores the per-element set membership
+\param ptr
+  the array that will store the starting indices in ind for
+  the elements of each set. This is filled by the routine and
+  its size should be at least range+1.
+\param ind
+  the array that stores consecutively which elements belong to
+  each set. The size of this array should be n.
+*/
+/************************************************************************/
 void gk_array2csr(size_t n, size_t range, int *array, int *ptr, int *ind)
 {
   gk_idx_t i;

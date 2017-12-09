@@ -13,7 +13,7 @@ extern "C" {
  #include "metis.h"
 }
 
-//typedef int idxtype;
+typedef int idxtype;
 
 class Navigation
 {

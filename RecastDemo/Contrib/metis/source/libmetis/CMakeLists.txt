@@ -1,41 +1,16 @@
-project(GraphLab)
+# Add this directory for internal users.
+include_directories(.)
+# Find sources.
+file(GLOB metis_sources *.c)
+# Build libmetis.
+add_library(metis ${METIS_LIBRARY_TYPE} ${GKlib_sources} ${metis_sources})
+if(UNIX)
+  target_link_libraries(metis m)
+endif()
 
-add_library(graphlab_metis STATIC
-  balance.c     graph.c          mcoarsen.c     mmatch.c    refine.c
-  bucketsort.c  initpart.c       memory.c       mmd.c       rkmetis.c
-  ccgraph.c     kfmetis.c        mesh.c         mpmetis.c   separator.c
-  checkgraph.c  kmetis.c         meshpart.c     mrefine2.c  sfm.c
-  cmetis.c      kvmetis.c        mfm2.c         mrefine.c   srefine.c
-  coarsen.c     kwayfm.c         mfm.c          mrkmetis.c  stat.c
-  compress.c    kwayrefine.c     mincover.c     mutil.c     streamio.c
-  debug.c       kwayvolfm.c      minitpart2.c   myqsort.c   subdomains.c
-  estmem.c      kwayvolrefine.c  minitpart.c    ometis.c    timing.c
-  fm.c          match.c          mkmetis.c      parmetis.c  util.c
-  fortran.c     mbalance2.c      mkwayfmh.c     pmetis.c
-  frename.c     mbalance.c       mkwayrefine.c  pqueue.c
-)
-
-# add_library(metis2_shared SHARED
-#   balance.c     graph.c          mcoarsen.c     mmatch.c    refine.c
-#   bucketsort.c  initpart.c       memory.c       mmd.c       rkmetis.c
-#   ccgraph.c     kfmetis.c        mesh.c         mpmetis.c   separator.c
-#   checkgraph.c  kmetis.c         meshpart.c     mrefine2.c  sfm.c
-#   cmetis.c      kvmetis.c        mfm2.c         mrefine.c   srefine.c
-#   coarsen.c     kwayfm.c         mfm.c          mrkmetis.c  stat.c
-#   compress.c    kwayrefine.c     mincover.c     mutil.c     streamio.c
-#   debug.c       kwayvolfm.c      minitpart2.c   myqsort.c   subdomains.c
-#   estmem.c      kwayvolrefine.c  minitpart.c    ometis.c    timing.c
-#   fm.c          match.c          mkmetis.c      parmetis.c  util.c
-#   fortran.c     mbalance2.c      mkwayfmh.c     pmetis.c
-#   frename.c     mbalance.c       mkwayrefine.c  pqueue.c
-# )
-
-# SET_TARGET_PROPERTIES(metis2_shared 
-#   PROPERTIES
-#   OUTPUT_NAME metis2
-# )
-
-set_target_properties(graphlab_metis PROPERTIES COMPILE_FLAGS "${METIS_BUILD_OPTS}")
-target_link_libraries(graphlab_metis graphlab_GKlib)
-
-INSTALL(TARGETS graphlab_metis DESTINATION lib)
+if(METIS_INSTALL)
+  install(TARGETS metis
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION lib
+    ARCHIVE DESTINATION lib)
+endif()

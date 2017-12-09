@@ -64,6 +64,18 @@ static SampleItem g_samples[] =
 };
 static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
 
+#ifndef _IOB_INC
+#define _IOB_INC 1
+#if _MSC_VER >= 1900
+#pragma comment (lib, "legacy_stdio_definitions.lib")
+FILE _iob[] = {*stdin, *stdout, *stderr};
+
+extern "C" FILE * __cdecl __iob_func(void)
+{
+   return _iob;
+}
+#endif
+#endif
 
 int main(int /*argc*/, char** /*argv*/)
 {
@@ -95,8 +107,8 @@ int main(int /*argc*/, char** /*argv*/)
    auto context = SDL_GL_CreateContext(window);
 	bool presentationMode = false;
 
-	int width, height;
-	SDL_Surface* screen = 0;
+	int width = 1280, height = 720;
+	//SDL_Surface* screen = 0;
 	/*
 	if (presentationMode)
 	{
@@ -111,10 +123,10 @@ int main(int /*argc*/, char** /*argv*/)
 		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	}
 	//*/
-	if (!screen)
+	//if (!screen)
 	{
 		printf("Could not initialise SDL opengl\n");
-		return -1;
+		//return -1;
 	}
 
 	glEnable(GL_MULTISAMPLE);

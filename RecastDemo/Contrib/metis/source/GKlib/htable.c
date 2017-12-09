@@ -64,7 +64,7 @@ void HTable_Resize(gk_HTable_t *htable, int nelements)
        HTable_Insert(htable, old_harray[i].key, old_harray[i].val);
 
   /* remove old harray */
-  gk_free((void *)&old_harray, LTERM);
+  gk_free((void **)&old_harray, LTERM);
 }
 
 
@@ -234,7 +234,7 @@ int HTable_SearchAndDelete(gk_HTable_t *htable, int key)
 *******************************************************************************/
 void HTable_Destroy(gk_HTable_t *htable)
 {
-  gk_free((void *)&htable->harray, &htable, LTERM);
+  gk_free((void **)&htable->harray, &htable, LTERM);
 }
 
 

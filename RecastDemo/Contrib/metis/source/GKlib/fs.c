@@ -7,7 +7,7 @@ the filesystem in a portable way.
 
 \date Started 4/10/95
 \author George
-\version\verbatim $Id: fs.c 986 2007-02-27 19:04:21Z karypis $ \endverbatim
+\version\verbatim $Id: fs.c 10711 2011-08-31 22:23:04Z karypis $ \endverbatim
 */
 
 
@@ -63,38 +63,66 @@ intmax_t gk_getfsize(char *filename)
 }
 
 
-/*************************************************************************
-* This function gets some basic statistics about the file
-**************************************************************************/
-void gk_getfilestats(char *fname, int *r_nlines, int *r_ntokens, int *r_nbytes)
+/*************************************************************************/
+/*! This function gets some basic statistics about the file. 
+    \param fname is the name of the file
+    \param r_nlines is the number of lines in the file. If it is NULL,
+           this information is not returned.
+    \param r_ntokens is the number of tokens in the file. If it is NULL,
+           this information is not returned.
+    \param r_max_nlntokens is the maximum number of tokens in any line
+           in the file. If it is NULL this information is not returned.
+    \param r_nbytes is the number of bytes in the file. If it is NULL,
+           this information is not returned.
+*/
+/*************************************************************************/
+void gk_getfilestats(char *fname, size_t *r_nlines, size_t *r_ntokens, 
+        size_t *r_max_nlntokens, size_t *r_nbytes)
 {
-  int nlines, ntokens, nbytes;
-  size_t lnlen;
+  size_t nlines=0, ntokens=0, max_nlntokens=0, nbytes=0, oldntokens=0, nread;
+  int intoken=0;
+  char buffer[2049], *cptr;
   FILE *fpin;
-  char *line=NULL, delim[] = " \t", *token;
 
   fpin = gk_fopen(fname, "r", "gk_GetFileStats");
 
-  nlines = ntokens = nbytes = 0;
+  while (!feof(fpin)) {
+    nread = fread(buffer, sizeof(char), 2048, fpin);
+    nbytes += nread;
 
-  while (gk_getline(&line, &lnlen, fpin)) {
-    nlines++;
-    nbytes += strlen(line);
-
-    token = strtok(line, delim);
-    while (token) {
-      ntokens++;
-      token = strtok(NULL, delim);
+    buffer[nread] = '\0';  /* There is space for this one */
+    for (cptr=buffer; *cptr!='\0'; cptr++) {
+      if (*cptr == '\n') {
+        nlines++;
+        ntokens += intoken;
+        intoken = 0;
+        if (max_nlntokens < ntokens-oldntokens)
+          max_nlntokens = ntokens-oldntokens;
+        oldntokens = ntokens;
+      }
+      else if (*cptr == ' ' || *cptr == '\t') {
+        ntokens += intoken;
+        intoken = 0;
+      }
+      else {
+        intoken = 1;
+      }
     }
   }
+  ntokens += intoken;
+  if (max_nlntokens < ntokens-oldntokens)
+    max_nlntokens = ntokens-oldntokens;
 
   gk_fclose(fpin);
 
-  *r_nlines  = nlines;
-  *r_ntokens = ntokens;
-  *r_nbytes  = nbytes;
-
-  gk_free((void *)&line, LTERM);
+  if (r_nlines != NULL)
+    *r_nlines  = nlines;
+  if (r_ntokens != NULL)
+    *r_ntokens = ntokens;
+  if (r_max_nlntokens != NULL)
+    *r_max_nlntokens = max_nlntokens;
+  if (r_nbytes != NULL)
+    *r_nbytes  = nbytes;
 }
 
 
