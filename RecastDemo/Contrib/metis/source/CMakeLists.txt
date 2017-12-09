@@ -1,4 +1,8 @@
+cmake_minimum_required(VERSION 3.7)
+
 project(GraphLab)
+
+set (CMAKE_C_STANDARD 99)
 
 # if(CMAKE_COMPILER_IS_GNUCXX)
 #   # metis is so full of warnings
@@ -15,10 +19,16 @@ project(GraphLab)
 # ENDIF(APPLE)
 # 
 
-if (CMAKE_BUILD_TYPE MATCHES "Release")
-  set(METIS_BUILD_OPTS "${CMAKE_C_FLAGS_RELEASE} -w -DLINUX -std=c99 -D_FILE_OFFSET_BITS=64") 
+add_definitions(-D_FILE_OFFSET_BITS=64)
+
+if(UNIX)
+  add_definitions(-DLINUX)
+endif()
+
+if (CMAKE_BUILD_TYPE MATCHES "Release") 
+  set(METIS_BUILD_OPTS "${CMAKE_C_FLAGS_RELEASE} -w") 
 elseif(CMAKE_BUILD_TYPE MATCHES "Debug")
-  set(METIS_BUILD_OPTS "${CMAKE_C_FLAGS_DEBUG} -w -DLINUX -std=c99 -D_FILE_OFFSET_BITS=64")
+  set(METIS_BUILD_OPTS "${CMAKE_C_FLAGS_DEBUG} -w")
 endif()
 
 
@@ -31,7 +41,7 @@ include_directories(
   .
   GKlib
   libmetis
-  C:\local\GnuWin32\src\lib
+  C:/local/gnuwin32/include
 )
 
 

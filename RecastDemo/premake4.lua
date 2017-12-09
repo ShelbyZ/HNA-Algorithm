@@ -17,8 +17,8 @@ solution "recastnavigation"
 	flags { 
 		"ExtraWarnings",
 		"FloatFast",
-		"NoExceptions",
-		"NoRTTI",
+		-- "NoExceptions",
+		-- "NoRTTI",
 		"Symbols"
 	}
 
@@ -164,12 +164,17 @@ project "RecastDemo"
 	-- windows library cflags and libs
 	configuration { "windows" }
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
-		libdirs { "../RecastDemo/Contrib/SDL/lib/x86" }
+		libdirs {
+			"../RecastDemo/Contrib/SDL/lib/x86",
+			"C:/local/gnuwin32/lib"
+		}
 		links { 
 			"opengl32",
 			"glu32",
 			"sdl2main",
-			"sdl2"
+			"sdl2",
+			"regex.lib",
+			"libgw32c.a",
 			"graphlab_metis"
 		}
 
