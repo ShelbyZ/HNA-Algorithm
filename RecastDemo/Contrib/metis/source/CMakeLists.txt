@@ -1,49 +1,27 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 2.8)
+project(METIS)
 
-project(GraphLab)
+set(GKLIB_PATH "GKlib" CACHE PATH "path to GKlib")
+set(SHARED FALSE CACHE BOOL "build a shared library")
 
-set (CMAKE_C_STANDARD 99)
-
-# if(CMAKE_COMPILER_IS_GNUCXX)
-#   # metis is so full of warnings
-#   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -w -DLINUX -std=c99 -D_FILE_OFFSET_BITS=64")
-#   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -w -DLINUX -std=c99 -D_FILE_OFFSET_BITS=64") 
-#   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -w -DLINUX -std=c99 -D_FILE_OFFSET_BITS=64")     
-#   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -w -DLINUX -std=c99 -D_FILE_OFFSET_BITS=64")  
-# endif(CMAKE_COMPILER_IS_GNUCXX)
-# 
-# IF(APPLE)
-#   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDARWIN ") 
-#   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DDARWIN")
-#   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDARWIN")
-# ENDIF(APPLE)
-# 
-
-add_definitions(-D_FILE_OFFSET_BITS=64)
-
-if(UNIX)
-  add_definitions(-DLINUX)
+if(MSVC)
+  set(METIS_INSTALL FALSE)
+else()
+  set(METIS_INSTALL TRUE)
 endif()
 
-if (CMAKE_BUILD_TYPE MATCHES "Release") 
-  set(METIS_BUILD_OPTS "${CMAKE_C_FLAGS_RELEASE} -w") 
-elseif(CMAKE_BUILD_TYPE MATCHES "Debug")
-  set(METIS_BUILD_OPTS "${CMAKE_C_FLAGS_DEBUG} -w")
-endif()
+# Configure libmetis library.
+if(SHARED)
+  set(METIS_LIBRARY_TYPE SHARED)
+else()
+  set(METIS_LIBRARY_TYPE STATIC)
+endif(SHARED)
 
-
-IF(APPLE)
-  set(METIS_BUILD_OPTS "${METIS_BUILD_OPTS} -DDARWIN")
-ENDIF(APPLE)
-
-
-include_directories( 
-  .
-  GKlib
-  libmetis
-  C:/local/gnuwin32/include
-)
-
-
-subdirs(GKlib libmetis)
-
+include(${GKLIB_PATH}/GKlibSystem.cmake)
+# Add include directories.
+include_directories(${GKLIB_PATH})
+include_directories(include)
+# Recursively look for CMakeLists.txt in subdirs.
+add_subdirectory("include")
+add_subdirectory("libmetis")
+add_subdirectory("programs")

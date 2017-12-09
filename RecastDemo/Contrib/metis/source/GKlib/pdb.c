@@ -7,13 +7,10 @@ Pdb reader (parser).  Loads arrays of pointers for easy backbone access.
 
 \date Started 10/20/06
 \author Kevin
-\version $Id: pdb.c 1414 2007-04-05 02:52:46Z karypis $
+\version $Id: pdb.c 10711 2011-08-31 22:23:04Z karypis $
 */
 /************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
 #include <GKlib.h>
-#include <string.h>
 
 /************************************************************************/
 /*! \brief Converts three-letter amino acid codes to one-leter codes.
@@ -108,15 +105,18 @@ This function takes a pdbf pointer and frees all the memory below it.
 void gk_freepdbf(pdbf *p) { /* {{{ */
 	int i;
 	if(p != NULL) {
-		gk_free((void *)&p->resSeq, LTERM);
+		gk_free((void **)&p->resSeq, LTERM);
 		for(i=0; i<p->natoms; i++) {
-			gk_free((void *)&p->atoms[i].name, &p->atoms[i].resname, LTERM);
+			gk_free((void **)&p->atoms[i].name, &p->atoms[i].resname, LTERM);
+    }
+		for(i=0; i<p->nresidues; i++) {
+      gk_free((void *)&p->threeresSeq[i], LTERM);
     }
 		/* this may look like it's wrong, but it's just a 1-d array of pointers, and
 			 the pointers themselves are freed above */
-	  gk_free((void *)&p->bbs, &p->cas, &p->atoms, LTERM);
+	  gk_free((void **)&p->bbs, &p->cas, &p->atoms, &p->cm, &p->threeresSeq, LTERM);
 	}
-	gk_free((void *)&p, LTERM);
+	gk_free((void **)&p, LTERM);
 } /* }}} */
 
 /************************************************************************/
@@ -145,10 +145,14 @@ pdbf *gk_readpdbfile(char *fname) { /* {{{ */
 	double x;
 	double y;
 	double z;
+	double avgx;
+	double avgy;
+	double avgz;
 	double opcy;
 	double tmpt;
 	char line[MAXLINELEN];
 	int corruption=0;
+  int nresatoms;
 
 	int atoms=0, residues=0, cas=0, bbs=0, firstres=1;
 	pdbf *toFill = gk_malloc(sizeof(pdbf),"fillme");
@@ -203,11 +207,15 @@ pdbf *gk_readpdbfile(char *fname) { /* {{{ */
 	toFill->ncas        = cas;
 	toFill->nbbs        = bbs;
 	toFill->nresidues   = residues;
-	toFill->resSeq      = (char *)gk_malloc (residues*sizeof(char),"residue seq");
-	toFill->atoms       = (atom *)gk_malloc(atoms*sizeof(atom),  "atoms");
-	toFill->bbs         = (atom **)gk_malloc(  bbs*sizeof(atom *),"bbs");
-	toFill->cas         = (atom **)gk_malloc(  cas*sizeof(atom *),"cas");
-	res=0; firstres=1; cas=0; bbs=0; i=0;
+	toFill->resSeq      = (char *) gk_malloc (residues*sizeof(char),"residue seq");
+	toFill->threeresSeq = (char **)gk_malloc (residues*sizeof(char *),"residue seq");
+	toFill->atoms       = (atom *) gk_malloc (atoms*sizeof(atom),  "atoms");
+	toFill->bbs         = (atom **)gk_malloc (  bbs*sizeof(atom *),"bbs");
+	toFill->cas         = (atom **)gk_malloc (  cas*sizeof(atom *),"cas");
+	toFill->cm          = (center_of_mass *)gk_malloc(residues*sizeof(center_of_mass),"center of mass");
+	res=0; firstres=1; cas=0; bbs=0; i=0; 
+  avgx = 0.0; avgy = 0.0; avgz = 0.0;
+  nresatoms = 0;
 
 	FPIN = gk_fopen(fname,"r",fname);	
 	while(fgets(line, 256, FPIN))	{
@@ -221,17 +229,32 @@ pdbf *gk_readpdbfile(char *fname) { /* {{{ */
 			linetype,&aserial,aname,&altLoc,rname,&chainid,&rserial,&icode,&x,&y,&z,&opcy,&tmpt,&element);
 			sscanf(aname, "%s",aname);
 			sscanf(rname, "%s",rname);
+
 			if(firstres == 1) {
-				toFill->resSeq[res]   = gk_threetoone(rname);
+				toFill->resSeq[res] = gk_threetoone(rname);
+			  toFill->threeresSeq[res] = gk_strdup(rname); 
 				oldRserial = rserial;
 				res++;
 				firstres = 0;
 			}
 			if(oldRserial != rserial) {
-				toFill->resSeq[res]   = gk_threetoone(rname);
+        /* we're changing residues. store the center of mass from the last one & reset */
+        toFill->cm[res-1].x = avgx/nresatoms;
+        toFill->cm[res-1].y = avgy/nresatoms;
+        toFill->cm[res-1].z = avgz/nresatoms;
+	      avgx = 0.0; avgy = 0.0; avgz = 0.0;
+        nresatoms = 0;
+        toFill->cm[res-1].name = toFill->resSeq[res-1];
+
+			  toFill->threeresSeq[res] = gk_strdup(rname); 
+				toFill->resSeq[res] = gk_threetoone(rname);
 				res++;
 				oldRserial = rserial;
 			}
+      avgx += x;
+      avgy += y;
+      avgz += z;
+      nresatoms++;
 
 			toFill->atoms[i].x       = x;
 			toFill->atoms[i].y       = y;
@@ -261,6 +284,10 @@ pdbf *gk_readpdbfile(char *fname) { /* {{{ */
 			break;
 		}
 	}
+  /* get that last average */
+  toFill->cm[res-1].x = avgx/nresatoms;
+  toFill->cm[res-1].y = avgy/nresatoms;
+  toFill->cm[res-1].z = avgz/nresatoms;
 	/* Begin test code */
 	if(cas != residues) {
 		printf("Number of residues and CA coordinates differs by %d (!)\n",residues-cas);
@@ -298,14 +325,37 @@ is in fasta format.
 /************************************************************************/
 void gk_writefastafrompdb(pdbf *pb, char *fname) {
   int i;
-  FILE *out = gk_fopen(fname,"w",fname);
-  fprintf(out,"> %s\n",fname);
+  FILE *FPOUT;
+  
+  FPOUT = gk_fopen(fname,"w",fname);
+  fprintf(FPOUT,"> %s\n",fname);
 
   for(i=0; i<pb->nresidues; i++) 
-    fprintf(out,"%c",pb->resSeq[i]);
+    fprintf(FPOUT,"%c",pb->resSeq[i]);
 
-  fprintf(out,"\n");
-  fclose(out);
+  fprintf(FPOUT,"\n");
+  fclose(FPOUT);
+}
+
+/************************************************************************/
+/*! \brief Writes all centers of mass in pdb-format to file fname.
+ 
+This function takes a pdbf structure and writes out the calculated 
+mass center information to file fname as though each one was a c-alpha.
+
+\param p is the pdbf structure to write out
+\param fname is the file name to be written
+*/
+/************************************************************************/
+void gk_writecentersofmass(pdbf *p, char *fname) {
+	int i;
+	FILE *FPIN; 
+	FPIN = gk_fopen(fname,"w",fname);	
+	for(i=0; i<p->nresidues; i++) {
+		 fprintf(FPIN,"%-6s%5d %4s%1c%3s %1c%4d%1c   %8.3lf%8.3lf%8.3lf%6.2f%6.2f\n",
+		"ATOM  ",i,"CA",' ',p->threeresSeq[i],' ',i,' ',p->cm[i].x,p->cm[i].y,p->cm[i].z,1.0,-37.0); 
+	}
+	fclose(FPIN);
 }
 
 /************************************************************************/

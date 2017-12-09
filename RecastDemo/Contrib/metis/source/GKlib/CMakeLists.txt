@@ -1,12 +1,21 @@
-project(GraphLab)
+cmake_minimum_required(VERSION 2.8)
+project(GKlib)
 
-add_library(graphlab_GKlib STATIC
-  b64.c          dlmalloc.c  getopt.c  memory.c  pqueue.c  string.c     util.c
-  blas.c         error.c     htable.c  omp.c     seq.c     timers.c
-  dfkvkselect.c  fs.c        io.c      pdb.c     sort.c    tokenizer.c
-)
+get_filename_component(abs "." ABSOLUTE)
+set(GKLIB_PATH ${abs})
+unset(abs)
+include(GKlibSystem.cmake)
 
-set_target_properties(graphlab_GKlib PROPERTIES COMPILE_FLAGS "${METIS_BUILD_OPTS}")
+include_directories(".")
+add_library(GKlib STATIC ${GKlib_sources})
+if(UNIX)
+  target_link_libraries(GKlib m)
+endif(UNIX)
 
-INSTALL(TARGETS graphlab_GKlib DESTINATION lib)
+include_directories("test")
+add_subdirectory("test")
 
+install(TARGETS GKlib
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib)
+install(FILES ${GKlib_includes} DESTINATION include)

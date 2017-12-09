@@ -4,7 +4,7 @@
 
 \date   Started 3/27/2007
 \author George
-\version\verbatim $Id: gk_macros.h 1432 2007-04-07 20:06:19Z karypis $ \endverbatim
+\version\verbatim $Id: gk_macros.h 10711 2011-08-31 22:23:04Z karypis $ \endverbatim
 */
 
 #ifndef _GK_MACROS_H_
@@ -13,20 +13,17 @@
 /*-------------------------------------------------------------
  * Usefull commands 
  *-------------------------------------------------------------*/
-#define amax(a, b) ((a) >= (b) ? (a) : (b))
-#define amin(a, b) ((a) >= (b) ? (b) : (a))
-#define amax3(a, b, c) ((a) >= (b) && (a) >= (c) ? (a) : ((b) >= (a) && (b) >= (c) ? (b) : (c)))
-#define SWAP(a, b, tmp) do {(tmp) = (a); (a) = (b); (b) = (tmp);} while(0) 
+#define gk_max(a, b) ((a) >= (b) ? (a) : (b))
+#define gk_min(a, b) ((a) >= (b) ? (b) : (a))
+#define gk_max3(a, b, c) ((a) >= (b) && (a) >= (c) ? (a) : ((b) >= (a) && (b) >= (c) ? (b) : (c)))
+#define gk_SWAP(a, b, tmp) do {(tmp) = (a); (a) = (b); (b) = (tmp);} while(0) 
 #define INC_DEC(a, b, val) do {(a) += (val); (b) -= (val);} while(0)
-#define gk_ccopy(n, a, b) (int *)memmove((void *)(b), (void *)(a), sizeof(char)*(n)) 
-#define gk_icopy(n, a, b) (int *)memmove((void *)(b), (void *)(a), sizeof(int)*(n)) 
-#define gk_fcopy(n, a, b) (float *)memmove((void *)(b), (void *)(a), sizeof(float)*(n))
-#define gk_dcopy(n, a, b) (double *)memmove((void *)(b), (void *)(a), sizeof(double)*(n))
-#define gk_idxcopy(n, a, b) (double *)memmove((void *)(b), (void *)(a), sizeof(gk_idx_t)*(n))
 #define sign(a, b) ((a >= 0 ? b : -b))
 
 #define ONEOVERRANDMAX (1.0/(RAND_MAX+1.0))
 #define RandomInRange(u) ((int) (ONEOVERRANDMAX*(u)*rand()))
+
+#define gk_abs(x) ((x) >= 0 ? (x) : -(x))
 
 
 /*-------------------------------------------------------------
@@ -52,6 +49,7 @@
  * gracefull library exit macro
  *-------------------------------------------------------------*/
 #define GKSETJMP() (setjmp(gk_return_to_entry))
+#define gk_sigcatch() (setjmp(gk_jbufs[gk_cur_jbufs]))
  
 
 /*-------------------------------------------------------------
@@ -86,24 +84,17 @@
    } while(0) 
 
 
-
-
 /*-------------------------------------------------------------
- * Program Assertions
+ * ASSERTS that cannot be turned off!
  *-------------------------------------------------------------*/
-#ifdef DEBUG
-#   define ASSERT(expr)                                          \
+#define GKASSERT(expr)                                          \
     if (!(expr)) {                                               \
         printf("***ASSERTION failed on line %d of file %s: " #expr "\n", \
               __LINE__, __FILE__);                               \
         abort();                                                \
     }
-#else
-#   define ASSERT(expr) ;
-#endif 
 
-#ifdef DEBUG
-#   define ASSERTP(expr,msg)                                          \
+#define GKASSERTP(expr,msg)                                          \
     if (!(expr)) {                                               \
         printf("***ASSERTION failed on line %d of file %s: " #expr "\n", \
               __LINE__, __FILE__);                               \
@@ -111,8 +102,52 @@
         printf("\n"); \
         abort();                                                \
     }
+
+#define GKCUASSERT(expr)                                          \
+    if (!(expr)) {                                               \
+        printf("***ASSERTION failed on line %d of file %s: " #expr "\n", \
+              __LINE__, __FILE__);                               \
+    }
+
+#define GKCUASSERTP(expr,msg)                                          \
+    if (!(expr)) {                                               \
+        printf("***ASSERTION failed on line %d of file %s: " #expr "\n", \
+              __LINE__, __FILE__);                               \
+        printf msg ; \
+        printf("\n"); \
+    }
+
+/*-------------------------------------------------------------
+ * Program Assertions
+ *-------------------------------------------------------------*/
+#ifndef NDEBUG
+#   define ASSERT(expr)                                          \
+    if (!(expr)) {                                               \
+        printf("***ASSERTION failed on line %d of file %s: " #expr "\n", \
+              __LINE__, __FILE__);                               \
+        assert(expr);                                                \
+    }
+
+#   define ASSERTP(expr,msg)                                          \
+    if (!(expr)) {                                               \
+        printf("***ASSERTION failed on line %d of file %s: " #expr "\n", \
+              __LINE__, __FILE__);                               \
+        printf msg ; \
+        printf("\n"); \
+        assert(expr);                                                \
+    }
 #else
+#   define ASSERT(expr) ;
 #   define ASSERTP(expr,msg) ;
 #endif 
+
+#ifndef NDEBUG2
+#   define ASSERT2 ASSERT
+#   define ASSERTP2 ASSERTP
+#else
+#   define ASSERT2(expr) ;
+#   define ASSERTP2(expr,msg) ;
+#endif
+
 
 #endif

@@ -166,16 +166,15 @@ project "RecastDemo"
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
 		libdirs {
 			"../RecastDemo/Contrib/SDL/lib/x86",
-			"C:/local/gnuwin32/lib"
+			"C:/local/gnuwin32/lib",
+			"../RecastDemo/Contrib/metis/lib"
 		}
 		links { 
 			"opengl32",
 			"glu32",
 			"sdl2main",
 			"sdl2",
-			"regex.lib",
-			"libgw32c.a",
-			"graphlab_metis"
+			"metis"
 		}
 
 	-- mac includes and libs

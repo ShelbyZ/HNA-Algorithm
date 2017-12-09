@@ -1,5 +1,5 @@
 /************************************************************************/
-/*! \file string.c
+/*! \file 
 
 \brief Functions for manipulating strings.
 
@@ -9,7 +9,7 @@ of standard functions (but with enhanced functionality).
 
 \date Started 11/1/99
 \author George
-\version $Id: string.c 1421 2007-04-06 14:37:41Z karypis $
+\version $Id: string.c 10711 2011-08-31 22:23:04Z karypis $
 */
 /************************************************************************/
 
@@ -419,6 +419,39 @@ int gk_strcasecmp(char *s1, char *s2)
 }
 
 
+/************************************************************************/
+/*! \brief Compare two strings in revere order
+
+This function is similar to strcmp but it performs the comparison as
+if the two strings were reversed.
+
+\param s1 is the first string to be compared.
+\param s2 is the second string to be compared.
+\retval -1, 0, 1, if the s1 < s2, s1 == s2, or s1 > s2.
+*/
+/*************************************************************************/
+int gk_strrcmp(char *s1, char *s2)
+{
+  int i1 = strlen(s1)-1;
+  int i2 = strlen(s2)-1;
+
+  while ((i1 >= 0) && (i2 >= 0)) {
+    if (s1[i1] != s2[i2])
+      return (s1[i1] - s2[i2]);
+    i1--;
+    i2--;
+  }
+
+  /* i1 == -1 and/or i2 == -1 */
+
+  if (i1 < i2)
+    return -1;
+  if (i1 > i2)
+    return 1;
+  return 0;
+}
+
+
 
 /************************************************************************/
 /*! \brief Converts a time_t time into a string 
@@ -449,6 +482,7 @@ char *gk_time2str(time_t time)
 
 
 
+#if !defined(WIN32) && !defined(__MINGW32__)
 /************************************************************************/
 /*! \brief Converts a date/time string into its equivalent time_t value
 
@@ -475,7 +509,7 @@ time_t gk_str2time(char *str)
   rtime = mktime(&time);
   return (rtime < 0 ? 0 : rtime);
 }
-
+#endif
 
 
 /*************************************************************************
