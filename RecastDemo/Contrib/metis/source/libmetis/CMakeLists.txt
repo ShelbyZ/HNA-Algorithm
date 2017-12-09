@@ -1,4 +1,3 @@
-
 project(GraphLab)
 
 add_library(graphlab_metis STATIC
@@ -31,9 +30,6 @@ add_library(graphlab_metis STATIC
 #   frename.c     mbalance.c       mkwayrefine.c  pqueue.c
 # )
 
-
-
-
 # SET_TARGET_PROPERTIES(metis2_shared 
 #   PROPERTIES
 #   OUTPUT_NAME metis2
@@ -41,6 +37,5 @@ add_library(graphlab_metis STATIC
 
 set_target_properties(graphlab_metis PROPERTIES COMPILE_FLAGS "${METIS_BUILD_OPTS}")
 target_link_libraries(graphlab_metis graphlab_GKlib)
-
 
 INSTALL(TARGETS graphlab_metis DESTINATION lib)
